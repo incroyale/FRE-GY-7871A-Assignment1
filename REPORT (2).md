@@ -1,11 +1,3 @@
-<style>
-  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 10.3pt; line-height: 1.32; color:#111; }
-  h1 { font-size: 15pt; margin-bottom: 2pt; }
-  h2 { font-size: 11.5pt; margin-top: 10pt; margin-bottom: 3pt; }
-  p { margin-top: 3pt; margin-bottom: 6pt; text-align: justify; }
-  img { display:block; margin: 4pt auto; }
-</style>
-
 # Assignment 1 Report — Uncertainty and Sentiment Analysis of Financial Reports
 
 **Name:** Deep Gandhi · **NetID:** dg4573 · **GitHub:** https://github.com/incroyale/FRE-GY-7871A-Assignment1
