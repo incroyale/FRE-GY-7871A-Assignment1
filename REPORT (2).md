@@ -14,7 +14,7 @@ Fin-Neg and Fin-Unc share only 40 words (1.7%/13.5% of each list), yet the two p
 
 ## 3. Trends, 2021–2025 (Figure 1, Table 4, Q3)
 
-<img src="assets/figure1_trends.png" alt="Quarterly Fin-Neg and Fin-Unc, 10-K vs. 10-Q, with VIX overlay" style="width:92%; max-height:300px; object-fit:contain;"/>
+<img src="outputs/figure1_trends.png" alt="Quarterly Fin-Neg and Fin-Unc, 10-K vs. 10-Q, with VIX overlay" style="width:92%; max-height:300px; object-fit:contain;"/>
 
 Splitting by form matters: 10-K tone trends **up** on both measures (neg_prop within-firm +0.08pp/yr, t=9.4; unc_prop +0.04pp/yr, t=6.6, both p<0.0001), while 10-Q tone trends **down** (neg_prop −0.04pp/yr, t=−2.0; unc_prop −0.03pp/yr, t=−2.5) — pooling the two would wash out or reverse the result depending on the mix in a given quarter. Figure 1 shows why the two need separating: the blue 10-K line saws upward through 2025 while the orange 10-Q line drifts down and sits below it for most of 2024–2025. Both lines loosely track VIX (gray) into the 2022 rate-hike selloff, but the 10-K uptrend keeps climbing well after VIX falls back in 2023–2024, so market-wide risk is not simply standing in for firm tone. I trust the within-firm test over the aggregate one (it controls for which firms happen to file in which quarter), and it agrees in sign and significance with the Newey-West aggregate test for the proportional measure. The tf.idf trend is less reliable: it correlates 0.95+ with raw document length, and word counts are themselves drifting down (~−515 words/yr for 10-Ks, ~−545 for 10-Qs), so part of any tf.idf "trend" is filings getting shorter rather than tone changing.
 
