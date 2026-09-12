@@ -1,0 +1,39 @@
+<style>
+  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 10.3pt; line-height: 1.32; color:#111; }
+  h1 { font-size: 15pt; margin-bottom: 2pt; }
+  h2 { font-size: 11.5pt; margin-top: 10pt; margin-bottom: 3pt; }
+  p { margin-top: 3pt; margin-bottom: 6pt; text-align: justify; }
+  img { display:block; margin: 4pt auto; }
+</style>
+
+# Assignment 1 Report — Uncertainty and Sentiment Analysis of Financial Reports
+
+**Name:** Deep Gandhi · **NetID:** dg4573 · **GitHub:** https://github.com/incroyale/FRE-GY-7871A-Assignment1
+
+## 1. What I did & data
+
+I score 10-K/10-Q filings from the 93 SEC-filing ARK-holdings companies (2021–2025) on the Loughran-McDonald Fin-Neg (2,355 words) and Fin-Unc (297 words) lists, proportionally and with tf.idf (eq. 1), and test whether either trends and whether either predicts volatility or filing-period returns. Of 124 ARK holdings, 7 have no SEC CIK and 24 domestic filers had no filing in-window, leaving 93 filers and 1,702 downloaded filings.
+
+**Table 1 (waterfall).** Filters, applied in order: dedupe dual-class tickers sharing one CIK (−20), amendments/failed parses (0, excluded upstream at download), word-count floor 2,000/1,000 (0), one filing per firm-quarter (−14), usable day 0 (0), price on day −1 ≥ $3 (−103), 60 trading days before *and* after day 0 (−23) → **1,542 filings, 88–90 firms**. Day 0 is the first trading day on/after the later of the filing date and the acceptance date (shifted +1 day if accepted at/after 4pm ET); this rule moves day 0 for **56%** of filings versus using the raw filing date, so it is not a cosmetic correction. Tables use both proportional and tf.idf scores throughout; the aggregate trend test uses Newey-West (HAC) errors because 20 quarterly points of a persistent series overstate significance under OLS, and firm-level regressions cluster by ticker because a firm's own filings are not independent draws.
+
+## 2. What the measures are made of (Table 2/3, Q1, Q2)
+
+Fin-Neg and Fin-Unc share only 40 words (1.7%/13.5% of each list), yet the two proportional scores correlate at **0.89** across filings (0.93 for tf.idf) — most of what follows should be read as one underlying "how alarmed is this filing" signal rather than two independent ones. The clearest split case is DraftKings' 10-Qs: consistently in the top 1% on Fin-Neg but only mid-percentile on Fin-Unc — openly negative language ("losses," "impairment") without much hedging. Fin-Unc's count is far more concentrated than Fin-Neg's: the ten most common words are **78%** of the uncertainty total (driven by near-universal hedges MAY and COULD, in literally every filing) versus **27%** for negative words. Uncertainty language is mostly generic hedging boilerplate, not filing-specific signal — which is exactly why the tf.idf weighting matters more for that list. 10-Ks score higher on both measures than 10-Qs (mean neg_prop 2.55% vs 2.17%), but 10-Qs have more than double the standard deviation (1.08% vs 0.45%) — a few short, template-heavy 10-Qs pull the tail.
+
+## 3. Trends, 2021–2025 (Figure 1, Table 4, Q3)
+
+<img src="assets/figure1_trends.png" alt="Quarterly Fin-Neg and Fin-Unc, 10-K vs. 10-Q, with VIX overlay" style="width:92%; max-height:300px; object-fit:contain;"/>
+
+Splitting by form matters: 10-K tone trends **up** on both measures (neg_prop within-firm +0.08pp/yr, t=9.4; unc_prop +0.04pp/yr, t=6.6, both p<0.0001), while 10-Q tone trends **down** (neg_prop −0.04pp/yr, t=−2.0; unc_prop −0.03pp/yr, t=−2.5) — pooling the two would wash out or reverse the result depending on the mix in a given quarter. Figure 1 shows why the two need separating: the blue 10-K line saws upward through 2025 while the orange 10-Q line drifts down and sits below it for most of 2024–2025. Both lines loosely track VIX (gray) into the 2022 rate-hike selloff, but the 10-K uptrend keeps climbing well after VIX falls back in 2023–2024, so market-wide risk is not simply standing in for firm tone. I trust the within-firm test over the aggregate one (it controls for which firms happen to file in which quarter), and it agrees in sign and significance with the Newey-West aggregate test for the proportional measure. The tf.idf trend is less reliable: it correlates 0.95+ with raw document length, and word counts are themselves drifting down (~−515 words/yr for 10-Ks, ~−545 for 10-Qs), so part of any tf.idf "trend" is filings getting shorter rather than tone changing.
+
+## 4. Uncertainty, volatility, and returns (Table 5/6, Q4, Q6)
+
+**Table 5.** Uncertainty predicts higher post-filing volatility between firms whether or not pre-filing volatility is controlled for (coef 8.3→5.8, both p<0.001) — but the coefficient collapses to insignificant (≈−1.5, p≈0.2) once firm fixed effects are added. The gap is the finding: the pooled relationship is mostly "volatile firms hedge more," not "hedged language forecasts a change in volatility" — I do not believe the within-firm null is a power problem, since this test has 1,495 firm-quarter observations. **Table 6.** Negative sentiment predicts a lower 4-day filing-period excess return at the 5–6% level (coef −0.57pp per 1pp of Fin-Neg, quarter FE only; −1.14pp with firm FE), but the minimum detectable effect (2.8×SE) exceeds the observed coefficient in both specifications — this test is genuinely underpowered, and I do not treat the marginal p-values as either confirming or ruling out a return effect.
+
+## 5. 10-K vs. 10-Q (Q5)
+
+10-Qs are shorter and more templated, which shows up directly as a proportional-measure variance more than double that of 10-Ks (§2) — a given percentage-point move in a 10-Q is noisier evidence than the same move in a 10-K. 10-Qs also file within days of an earnings release, which is a confound for Table 6: any filing-period return may be earnings news rather than a reaction to the filing's text, and I cannot separately identify the two with this design. Between the two, 10-Ks should carry more textual signal — they are longer, less templated, and the form where both the volatility (between-firm) and trend results are cleaner.
+
+## 6. Limitations & next steps
+
+The sample is survivors of the 2021–2025 ARK universe by construction — firms that delisted or went private are excluded from the trend series, which likely understates how negative/uncertain tone got for the worst performers. Twenty quarters is a short window for any trend test. SPY is a broad-market benchmark, not a thematic one; ARKK would be a sharper (if noisier) alternative. The single change most likely to improve this design is a longer sample window to more cleanly identify the within-firm trend and give the return test real power — the cost is redownloading and rescoring several more years of filings.
